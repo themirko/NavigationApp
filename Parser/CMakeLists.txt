@@ -15,6 +15,7 @@ target_include_directories(ParserMain PUBLIC
         C:/OSMlib/include/
 )
 
+
 # Find and link Boost libraries
 find_package(Boost REQUIRED COMPONENTS system filesystem)
 target_link_libraries(ParserMain PUBLIC Boost::boost Boost::system Boost::filesystem)
