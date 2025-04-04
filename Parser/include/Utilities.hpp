@@ -1,10 +1,9 @@
-#ifndef UTILITIES_HPP
-#define UTILITIES_HPP
+#pragma once
 
-#include <iostream>
 #include <array>
 #include <algorithm>
 #include <string_view>
+#include <osmium/osm/way.hpp>
 
 namespace OSMParser::Utilities {
     static constexpr std::array<std::basic_string_view<char>, 11> ExcludedHighwayTypes = {
@@ -12,7 +11,7 @@ namespace OSMParser::Utilities {
         "escape", "other", "private", "proposed", "raceway", "service"
     }; // keep this sorted (used by binary_search)
 
-    inline bool isExcludedHighwayType(const std::basic_string_view<char> type) {
+    inline bool isExcludedHighwayType(const std::basic_string_view<char> &type) {
         return std::binary_search(std::begin(ExcludedHighwayTypes), std::end(ExcludedHighwayTypes), type);
     }
 
@@ -22,14 +21,20 @@ namespace OSMParser::Utilities {
     }; // keep this sorted (used by binary_search)
 
 
-    inline std::basic_string_view<char> determineTransportationMode(const std::basic_string_view<char> type) {
+    inline std::basic_string_view<char> determineTransportationMode(const std::basic_string_view<char> &type) {
         if (std::binary_search(std::begin(PedestrianRoadTypes), std::end(PedestrianRoadTypes), type)) {
             return "pedestrian";
         }
         return "vehicles";
     }
-} // OSMParser::Utilities
 
+    inline std::basic_string_view<char> isOnewayOrTwowayStreet(const osmium::Way &way) {
+        const std::basic_string_view oneway(way.tags().get_value_by_key("oneway", "no"));
 
+        if (oneway == "yes") {
+            return "oneway";
+        }
 
-#endif //UTILITIES_HPP
+        return "twoway";
+    }
+}

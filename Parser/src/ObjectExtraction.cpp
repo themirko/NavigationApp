@@ -1,5 +1,5 @@
 #include "../include/ObjectExtraction.hpp"
-#include "ParserHandler.cpp"
+#include "../include/ParserHandler.hpp"
 
 #include <osmium/io/any_input.hpp>
 #include <osmium/visitor.hpp>

@@ -1,5 +1,4 @@
-#ifndef PARSERHANDLER_HPP
-#define PARSERHANDLER_HPP
+#pragma once
 
 #include <fstream>
 #include <string_view>
@@ -20,10 +19,7 @@ namespace OSMParser
         void node(const osmium::Node&);
         void way(const osmium::Way&);
 
-        void extractHighwayElements(const osmium::Way&, const std::basic_string_view<char>);
-    }; // Handler class
+        void extractHighwayElements(const osmium::Way&, const std::basic_string_view<char>&);
+    };
 
-} // OSMParser
-
-
-#endif //PARSERHANDLER_HPP
+}
