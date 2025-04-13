@@ -6,24 +6,22 @@
 #include "types.hpp"
 
 class Node {
-
+public:
     const std::string id;
 
-    double longitude = 0.0;
-    double latitude = 0.0;
+    float longitude = 0.0;
+    float latitude = 0.0;
 
     std::vector<Edge> edges;
 
-    public:
-        Node() = delete;
-        Node(std::string id);
-        Node(std::string id, const double &longitude, const double &latitude);
+    Node() = delete;
+    Node(std::string id);
+    Node(std::string id, float longitude, float latitude);
 
-        ~Node() = default;
+    ~Node() = default;
 
-        void setLatitudeAndLongitude(const double &longitude, const double &latitude);
-        void addEdge(Edge neighbor);
+    void addEdge(Edge edge);
+    void printNode() const;
 
-        void printNode() const;
 };
 

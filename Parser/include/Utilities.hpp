@@ -23,12 +23,12 @@ namespace OSMParser::Utilities {
 
     inline std::basic_string_view<char> determineTransportationMode(const std::basic_string_view<char> &type) {
         if (std::binary_search(std::begin(PedestrianRoadTypes), std::end(PedestrianRoadTypes), type)) {
-            return "pedestrian";
+            return "Walking";
         }
-        return "vehicles";
+        return "Driving";
     }
 
-    inline std::basic_string_view<char> isOnewayOrTwowayStreet(const osmium::Way &way) {
+    inline std::basic_string_view<char> trafficDirection(const osmium::Way &way) {
         const std::basic_string_view oneway(way.tags().get_value_by_key("oneway", "no"));
 
         if (oneway == "yes") {

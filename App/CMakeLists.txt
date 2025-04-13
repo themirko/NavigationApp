@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(NavigationApp
         main.cpp
+        src/MapClass.cpp
         src/NodeClass.cpp
         src/EdgeClass.cpp
 )

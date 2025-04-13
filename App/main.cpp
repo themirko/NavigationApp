@@ -1,21 +1,15 @@
-#pragma once
-
 #include <iostream>
 
-#include "include/NodeClass.hpp"
-#include "include/EdgeClass.hpp"
-#include <memory>
-
 #include "include/types.hpp"
+#include "include/MapClass.hpp"
+
+
 
 int main() {
 
-    nodePtr str =  std::make_shared<Node>("123321");
-    Edge edge("Street", 0.123, nullptr);
-    str->addEdge(edge);
-
-
-    str->printNode();
+    Map map{};
+    map.loadMap();
+    map.printMap();
 
     return 0;
 }

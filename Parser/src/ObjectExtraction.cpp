@@ -1,6 +1,7 @@
 #include "../include/ObjectExtraction.hpp"
 #include "../include/ParserHandler.hpp"
 
+#include <cstdint>
 #include <osmium/io/any_input.hpp>
 #include <osmium/visitor.hpp>
 

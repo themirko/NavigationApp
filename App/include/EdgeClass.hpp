@@ -6,16 +6,21 @@
 #include "types.hpp"
 
 class Edge {
+public:
     const std::string streetName;
-    double distance;
+    const std::string streetId;
 
-    nodePtr neighbor;
-    public:
+    const double kmDistance = 0;
 
-        Edge() = delete;
-        Edge(std::string streetName, const double &distance, nodePtr neighbor);
+    TransportationMode transportationMode;
+    nodePtr nodeNeighbor;
 
-        ~Edge() = default;
+    Edge() = delete;
+    Edge(const std::string &streetName, const std::string &streetId, double kmDistance,
+         TransportationMode TransportationMode, nodePtr neighbor);
 
-        void printEdge() const;
+    ~Edge() = default;
+
+
+    void printEdge() const;
 };

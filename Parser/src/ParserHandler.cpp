@@ -41,9 +41,9 @@ namespace OSMParser {
     void Handler::extractHighwayElements(const osmium::Way &way, const std::basic_string_view<char> &type) {
         const std::basic_string_view streetName(way.tags().get_value_by_key("int_name", "unnamed"));
 
-        wayFile << streetName << std::endl;
-        wayFile << Utilities::isOnewayOrTwowayStreet(way) << " " << Utilities::determineTransportationMode(type) << std::endl;
         wayFile << "wayId: " << way.id() << std::endl;
+        wayFile << streetName << std::endl;
+        wayFile << Utilities::trafficDirection(way) << " " << Utilities::determineTransportationMode(type) << std::endl;
 
         for (const auto &node : way.nodes()) {
             wayFile << node.ref() << std::endl;

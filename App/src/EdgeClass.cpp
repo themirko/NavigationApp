@@ -3,16 +3,16 @@
 #include "../include/EdgeClass.hpp"
 
 #include <iostream>
-#include <utility>
 #include <memory>
 
 
-Edge::Edge(std::string streetName, const double &distance, nodePtr neighbor) :
- streetName(std::move(streetName)), distance(distance), neighbor(std::move(neighbor)) {}
+Edge::Edge(const std::string &streetName, const std::string &streetId, double kmDistance,
+           TransportationMode transportationMode, nodePtr neighbor) :
+streetName(streetName), streetId(streetId), kmDistance(kmDistance), transportationMode(transportationMode), nodeNeighbor(neighbor) {}
 
 
 void Edge::printEdge() const {
-  std::cout << "Edge: " << streetName << " " << distance << std::endl;
+  std::cout << "Edge: " << streetName << " " << kmDistance << std::endl;
 }
 
 
