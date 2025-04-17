@@ -4,6 +4,7 @@
 #include "../include/MapClass.hpp"
 #include "../include/NodeClass.hpp"
 #include "../include/EdgeClass.hpp"
+#include "../include/GeoUtils.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -19,33 +20,16 @@ TransportationMode Map::toTransportationMode(const std::string &transportationMo
      return TransportationMode::Unknown;
 }
 
-double Map::calculateDistance(const nodePtr &node1, const nodePtr &node2) const {
-     constexpr double DegreesToRadians = M_PI / 180.0;
-     constexpr double earthRadiusKilometers = 6371.0;
 
-     const double lat1 = node1->latitude * DegreesToRadians;
-     const double lon1 = node1->longitude * DegreesToRadians;
+void Map::setupMapData() {
 
-     const double lat2 = node2->latitude * DegreesToRadians;
-     const double lon2 = node2->longitude * DegreesToRadians;
+     std::vector<nodePtr> nodes;
 
-     const double deltaLat = lat2 - lat1;
-     const double deltaLon = lon2 - lon1;
-
-     const double haversine = std::pow(std::sin(deltaLat / 2), 2) + std::cos(lat1) * std::cos(lat2) * std::pow(std::sin(deltaLon / 2), 2);
-     const double angularDistance = 2 * std::asin(std::sqrt(haversine));
-
-
-     return angularDistance * earthRadiusKilometers;
-}
-
-
-void Map::initializeNodes() {
-
-     std::ifstream file("../../Parser/OSM/Nodes.txt");
+     // std::ifstream file("../../Parser/OSM/Nodes.txt");
+     std::ifstream file("../nodesINIT.txt");
 
      if (!file) {
-          std::cerr << "File does not exist! (nodes initialization)" << std::endl;
+          std::cerr << "File does not exist! (setupMapData)" << std::endl;
           return;
      }
 
@@ -53,20 +37,19 @@ void Map::initializeNodes() {
      double latitude, longitude;
 
      while (file >> nodeId >> latitude >> longitude) {
-          if (nodes.contains(nodeId)) {
-               std::cerr << "Node " << nodeId << " already exists!" << std::endl;
-               continue;
-          }
+          if (this->nodeRegistry.contains(nodeId)) continue;
 
-          this->nodes[nodeId] = std::make_shared<Node>(nodeId, latitude, longitude);
+          this->nodeRegistry[nodeId] = std::make_shared<Node>(nodeId, latitude, longitude);
+          nodes.emplace_back(this->nodeRegistry[nodeId]);
      }
 
      if (!file.eof()) {
-          std::cerr << "Error reading file! (nodes initialization)" << std::endl;
+          std::cerr << "Error reading file! (setupMapData)" << std::endl;
      }
      else std::cout << "Nodes initialized successfully!" << std::endl;
-
      file.close();
+
+     this->tree.buildTree(nodes);
 }
 
 
@@ -74,25 +57,25 @@ void Map::createOnewayStreet(std::ifstream &file, const std::string &streetName,
      std::string currentNodeId, nextNodeId;
 
      if (!(file >> currentNodeId)) return;
-     nodePtr currentNode = this->nodes[currentNodeId];
+     nodePtr currentNode = this->nodeRegistry[currentNodeId];
 
      while (file >> nextNodeId) {
           if (nextNodeId == "wayId:") return;
 
-          if (!this->nodes.contains(currentNodeId)) {
+          if (!this->nodeRegistry.contains(currentNodeId)) {
                std::cerr << "Node " << currentNodeId << " does not exist!" << std::endl;
 
-               currentNode = this->nodes[nextNodeId];
+               currentNode = this->nodeRegistry[nextNodeId];
                continue;
           }
 
-          if (!this->nodes.contains(nextNodeId)) {
+          if (!this->nodeRegistry.contains(nextNodeId)) {
                std::cerr << "Node " << nextNodeId << " does not exist!" << std::endl;
                continue;
           }
 
-          nodePtr nextNode = this->nodes[nextNodeId];
-          currentNode->addEdge(Edge(streetName, streetId, calculateDistance(currentNode, nextNode), toTransportationMode(transportationMode), nextNode));
+          nodePtr nextNode = this->nodeRegistry[nextNodeId];
+          currentNode->addEdge(Edge(streetName, streetId, GeoUtils::HaversineDistance(currentNode, nextNode), toTransportationMode(transportationMode), nextNode));
 
           currentNode = nextNode;
      }
@@ -103,27 +86,27 @@ void Map::createTwoWayStreet(std::ifstream &file, const std::string &streetName,
      std::string currentNodeId, nextNodeId;
 
      if (!(file >> currentNodeId)) return;
-     nodePtr currentNode = this->nodes[currentNodeId];
+     nodePtr currentNode = this->nodeRegistry[currentNodeId];
 
      while (file >> nextNodeId) {
           if (nextNodeId == "wayId:") return;
 
-          if (!this->nodes.contains(currentNodeId)) {
+          if (!this->nodeRegistry.contains(currentNodeId)) {
                std::cerr << "Node " << currentNodeId << " does not exist!" << std::endl;
 
-               currentNode = this->nodes[nextNodeId];
+               currentNode = this->nodeRegistry[nextNodeId];
                continue;
           }
 
-          if (!this->nodes.contains(nextNodeId)) {
+          if (!this->nodeRegistry.contains(nextNodeId)) {
                std::cerr << "Node " << nextNodeId << " does not exist!" << std::endl;
                continue;
           }
 
-          nodePtr nextNode = this->nodes[nextNodeId];
+          nodePtr nextNode = this->nodeRegistry[nextNodeId];
 
-          currentNode->addEdge(Edge(streetName, streetId, calculateDistance(currentNode, nextNode), toTransportationMode(transportationMode), nextNode));
-          nextNode->addEdge(Edge(streetName, streetId, calculateDistance(currentNode, nextNode), toTransportationMode(transportationMode), currentNode));
+          currentNode->addEdge(Edge(streetName, streetId, GeoUtils::HaversineDistance(currentNode, nextNode), toTransportationMode(transportationMode), nextNode));
+          nextNode->addEdge(Edge(streetName, streetId, GeoUtils::HaversineDistance(currentNode, nextNode), toTransportationMode(transportationMode), currentNode));
 
           currentNode = nextNode;
      }
@@ -131,12 +114,12 @@ void Map::createTwoWayStreet(std::ifstream &file, const std::string &streetName,
 
 void Map::loadMap() {
 
-     this->initializeNodes();
+     this->setupMapData();
      std::ifstream file("../../Parser/OSM/Ways.txt");
      // std::ifstream file("../waysInit.txt");
 
      if (!file) {
-          std::cerr << "File does not exist! (map loading)" << std::endl;
+          std::cerr << "File does not exist! (loadMap)" << std::endl;
           return;
      }
 
@@ -156,7 +139,7 @@ void Map::loadMap() {
      }
 
      if (!file.eof()) {
-          std::cerr << "Error reading file! (map loading)" << std::endl;
+          std::cerr << "Error reading file! (loadMap)" << std::endl;
      }
      else std::cout << "Map loaded successfully!" << std::endl;
 
@@ -164,13 +147,17 @@ void Map::loadMap() {
 }
 
 void Map::printMap() const {
-     std::cout << std::size(this->nodes) << std::endl;
+     std::cout << std::size(this->nodeRegistry) << std::endl;
 }
 
 void Map::printNodes() const {
-     for (const auto &node : this->nodes) {
+     for (const auto &node : this->nodeRegistry) {
           node.second->printNode();
      }
+}
+
+void Map::printKDTree() const {
+     this->tree.printTree();
 }
 
 

@@ -5,6 +5,8 @@
 #include <iostream>
 #include <memory>
 
+#include "../include/NodeClass.hpp"
+
 
 Edge::Edge(const std::string &streetName, const std::string &streetId, double kmDistance,
            TransportationMode transportationMode, nodePtr neighbor) :
@@ -12,7 +14,11 @@ streetName(streetName), streetId(streetId), kmDistance(kmDistance), transportati
 
 
 void Edge::printEdge() const {
-  std::cout << "Edge: " << streetName << " " << kmDistance << std::endl;
+
+    std::cout << "Street id: " << this->streetId << std::endl;
+    std::cout << "Street name: " << this->streetName << std::endl;
+
+    std::cout << "Distance in kilometers to " << this->nodeNeighbor->id << " is " << kmDistance << std::endl;
 }
 
 

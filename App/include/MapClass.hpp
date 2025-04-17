@@ -4,32 +4,36 @@
 #include <unordered_map>
 
 #include "types.hpp"
+#include "KDTreeClass.hpp"
+
 
 class Map {
-    std::unordered_map<std::string, nodePtr> nodes;
-
-    public:
-        Map() = default;
-        ~Map() = default;
+    std::unordered_map<std::string, nodePtr> nodeRegistry;
 
 
-        TransportationMode toTransportationMode(const std::string &transportationMode) const;
+    TransportationMode toTransportationMode(const std::string &transportationMode) const;
 
-        void initializeNodes();
-        void createOnewayStreet(std::ifstream &file,
-                                  const std::string &streetName,
-                                  const std::string &streetId,
-                                  const std::string &transportationMode);
+    void createOnewayStreet(std::ifstream &file,
+                            const std::string &streetName,
+                            const std::string &streetId,
+                            const std::string &transportationMode);
 
-        void createTwoWayStreet(std::ifstream &file,
-                                  const std::string &streetName,
-                                  const std::string &streetId,
-                                  const std::string &transportationMode);
+    void createTwoWayStreet(std::ifstream &file,
+                            const std::string &streetName,
+                            const std::string &streetId,
+                            const std::string &transportationMode);
 
-        void loadMap();
+public:
+    KDTree tree;
 
-        double calculateDistance(const nodePtr &node1, const nodePtr &node2) const;
+    Map() = default;
+    ~Map() = default;
 
-        void printMap() const;
-        void printNodes() const;
+
+    void setupMapData();
+    void loadMap();
+
+    void printMap() const;
+    void printKDTree() const;
+    void printNodes() const;
 };

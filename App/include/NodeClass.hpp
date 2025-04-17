@@ -9,14 +9,14 @@ class Node {
 public:
     const std::string id;
 
-    float longitude = 0.0;
     float latitude = 0.0;
+    float longitude = 0.0;
 
     std::vector<Edge> edges;
 
     Node() = delete;
     Node(std::string id);
-    Node(std::string id, float longitude, float latitude);
+    Node(std::string id, float latitude, float longitude);
 
     ~Node() = default;
 

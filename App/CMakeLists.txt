@@ -9,5 +9,6 @@ add_executable(NavigationApp
         src/MapClass.cpp
         src/NodeClass.cpp
         src/EdgeClass.cpp
+        src/KDTreeClass.cpp
 )
 
