@@ -10,13 +10,13 @@ public:
     const std::string streetName;
     const std::string streetId;
 
-    const double kmDistance = 0;
+    const Kilometers distance = 0;
 
     TransportationMode transportationMode;
     nodePtr nodeNeighbor;
 
     Edge() = delete;
-    Edge(const std::string &streetName, const std::string &streetId, double kmDistance,
+    Edge(const std::string &streetName, const std::string &streetId, Kilometers distance,
          TransportationMode TransportationMode, nodePtr neighbor);
 
     ~Edge() = default;

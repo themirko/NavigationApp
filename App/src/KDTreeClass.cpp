@@ -30,10 +30,10 @@ void KDTree::buildTreeRecursive( KDPtr &currentRoot, std::vector<nodePtr> &nodes
         return;
     }
 
-    if (depth % 2 == 0)  std::sort(nodes.begin(), nodes.end(), this->compareByLatitude);
-    else std::sort(nodes.begin(), nodes.end(), this->compareByLongitude);
+    if (depth % 2 == 0)  std::sort(nodes.begin(), nodes.end(), compareByLatitude);
+    else std::sort(nodes.begin(), nodes.end(), compareByLongitude);
 
-    size_t medianSize = nodes.size() / 2;
+    const size_t medianSize = nodes.size() / 2;
     currentRoot = createNode(nodes[medianSize]);
 
     std::vector leftNodes(nodes.begin(), nodes.begin() + medianSize);
@@ -68,13 +68,13 @@ void KDTree::printTree() const {
 
 }
 
-std::pair<nodePtr, double> KDTree::findNearestNodeRecursive(const double latitude, const double longitude, const KDPtr &currentRoot,
-                                                            const long depth, std::pair<nodePtr, double> currentBestNode) {
+std::pair<nodePtr, Kilometers> KDTree::findNearestNodeRecursive(const Degrees latitude, const Degrees longitude, const KDPtr &currentRoot,
+                                                            const long depth, std::pair<nodePtr, Kilometers> currentBestNode) {
 
     if (currentRoot == nullptr) return currentBestNode;
 
-    double currentDistance = GeoUtils::HaversineDistance(latitude, longitude, currentRoot->parent);
-    std::pair<nodePtr, double> bestNode = std::make_pair(currentRoot->parent, currentDistance);
+    Kilometers currentDistance = GeoUtils::HaversineDistance(latitude, longitude, currentRoot->parent);
+    std::pair<nodePtr, Kilometers> bestNode = std::make_pair(currentRoot->parent, currentDistance);
 
     if (currentBestNode.first && currentBestNode.second < currentDistance)  {
         bestNode = currentBestNode;
@@ -82,7 +82,8 @@ std::pair<nodePtr, double> KDTree::findNearestNodeRecursive(const double latitud
 
     if (!currentRoot->left && !currentRoot->right || currentDistance < 1e-9) return bestNode;
 
-    double parentAxis, targetAxis, axisDistance;
+    Degrees parentAxis, targetAxis;
+    Kilometers axisDistance;
 
     if (!(depth % 2)) {
         parentAxis = currentRoot->parent->latitude;
@@ -106,7 +107,6 @@ std::pair<nodePtr, double> KDTree::findNearestNodeRecursive(const double latitud
     return bestNode;
 }
 
-
-nodePtr KDTree::findNearestNode(const double latitude, const double longitude) {
+nodePtr KDTree::findNearestNode(const Degrees latitude, const Degrees longitude) {
     return findNearestNodeRecursive(latitude, longitude, this->root, 0, {}).first;
 }

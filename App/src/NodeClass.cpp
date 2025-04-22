@@ -10,7 +10,7 @@ Node::Node(std::string id) : id(std::move(id)) {
     edges.reserve(5);
 }
 
-Node::Node(std::string id, const float latitude, const float longitude)
+Node::Node(std::string id, const Degrees latitude, const Degrees longitude)
     : id(std::move(id)), latitude(latitude), longitude(longitude) {
     edges.reserve(5);
 }

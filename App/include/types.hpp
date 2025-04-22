@@ -17,6 +17,11 @@ class KDTree;
 using nodePtr = std::shared_ptr<Node>;
 using KDPtr = std::shared_ptr<KDNode>;
 
+using Kilometers = float;
+using Degrees = float;
+using Radians = float;
+
+
 struct KDNode {
     nodePtr parent = nullptr;
 

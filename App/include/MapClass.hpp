@@ -9,6 +9,7 @@
 
 class Map {
     std::unordered_map<std::string, nodePtr> nodeRegistry;
+    KDTree tree;
 
 
     TransportationMode toTransportationMode(const std::string &transportationMode) const;
@@ -24,13 +25,12 @@ class Map {
                             const std::string &transportationMode);
 
 public:
-    KDTree tree;
 
     Map() = default;
     ~Map() = default;
 
 
-    void setupMapData();
+    void setupMapData(); // make private after testing
     void loadMap();
 
     void printMap() const;

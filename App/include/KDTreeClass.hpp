@@ -12,14 +12,14 @@ public:
     KDTree() = default;
     ~KDTree() = default;
 
-    nodePtr findNearestNode(const double latitude, const double longitude);
+    nodePtr findNearestNode(const Degrees latitude, const Degrees longitude);
 
     void buildTree(std::vector<nodePtr> &nodes);
     void printTree() const;
 
 private:
-    std::pair<nodePtr, double> findNearestNodeRecursive(const double latitude, const double longitude, const KDPtr &currentRoot,
-                                                        const long depth, std::pair<nodePtr, double> currentBestNode);
+    std::pair<nodePtr, Kilometers> findNearestNodeRecursive(const Degrees latitude, const Degrees longitude, const KDPtr &currentRoot,
+                                                        const long depth, std::pair<nodePtr, Kilometers> currentBestNode);
     KDPtr createNode(const nodePtr &mapNode);
 
     void buildTreeRecursive(KDPtr &currentRoot, std::vector<nodePtr> &nodes, const long depth);

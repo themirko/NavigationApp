@@ -34,7 +34,7 @@ void Map::setupMapData() {
      }
 
      std::string nodeId;
-     double latitude, longitude;
+     Degrees latitude, longitude;
 
      while (file >> nodeId >> latitude >> longitude) {
           if (this->nodeRegistry.contains(nodeId)) continue;
