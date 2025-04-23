@@ -9,12 +9,26 @@
 
 
 Edge::Edge(const std::string &streetName, const std::string &streetId, Kilometers distance,
-           TransportationMode transportationMode, nodePtr neighbor) :
-streetName(streetName), streetId(streetId), distance(distance), transportationMode(transportationMode), nodeNeighbor(neighbor) {}
+           TransportationMode transportationMode, nodePtr neighbor) : streetName(streetName),
+                                                                      streetId(streetId),
+                                                                      distance(distance),
+                                                                      transportationMode(transportationMode),
+                                                                      nodeNeighbor(neighbor) {}
 
+
+std::string Edge::getNodeId() const {
+    return nodeNeighbor->getId();
+}
+
+Kilometers Edge::getDistance() const {
+    return this->distance;
+}
+
+nodePtr Edge::getNeighborNode() const {
+    return this->nodeNeighbor;
+}
 
 void Edge::printEdge() const {
-
     std::cout << "Street id: " << this->streetId << std::endl;
     std::cout << "Street name: " << this->streetName << std::endl;
 

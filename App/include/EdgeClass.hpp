@@ -21,6 +21,11 @@ public:
 
     ~Edge() = default;
 
+    Edge &operator=(const Edge &other) = delete;
+
+    nodePtr getNeighborNode() const;
+    Kilometers getDistance() const;
+    std::string getNodeId() const;
 
     void printEdge() const;
 };

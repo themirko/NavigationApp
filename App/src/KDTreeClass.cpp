@@ -47,7 +47,7 @@ void KDTree::buildTreeRecursive( KDPtr &currentRoot, std::vector<nodePtr> &nodes
 void KDTree::buildTree(std::vector<nodePtr> &nodes) {
 
     this->buildTreeRecursive(this->root, nodes, 0);
-    std::cout << "Tree built successfully!" << std::endl;
+    std::cout << "KDTree built successfully!" << std::endl;
 }
 
 void KDTree::printTree() const {
@@ -69,7 +69,7 @@ void KDTree::printTree() const {
 }
 
 std::pair<nodePtr, Kilometers> KDTree::findNearestNodeRecursive(const Degrees latitude, const Degrees longitude, const KDPtr &currentRoot,
-                                                            const long depth, std::pair<nodePtr, Kilometers> currentBestNode) {
+                                                                const long depth, std::pair<nodePtr, Kilometers> currentBestNode) {
 
     if (currentRoot == nullptr) return currentBestNode;
 

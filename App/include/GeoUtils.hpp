@@ -8,7 +8,7 @@
 namespace GeoUtils {
 
     inline Kilometers HaversineDistance(const Degrees latitude1, const Degrees longitude1,
-                                    const Degrees latitude2, const Degrees longitude2) {
+                                        const Degrees latitude2, const Degrees longitude2) {
         constexpr Radians DegreesToRadians = M_PI / 180.0;
         constexpr Kilometers earthRadius = 6371.0;
 

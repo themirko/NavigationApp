@@ -3,9 +3,9 @@
 #include <memory>
 
 enum class TransportationMode {
-    Driving,
-    Walking,
-    Unknown
+    DRIVING,
+    WALKING,
+    UNKNOWN
 };
 
 struct KDNode;
@@ -21,14 +21,13 @@ using Kilometers = float;
 using Degrees = float;
 using Radians = float;
 
-
 struct KDNode {
     nodePtr parent = nullptr;
 
     KDPtr left = nullptr;
     KDPtr right = nullptr;
 
-    KDNode(const nodePtr &node) : parent(node) {};
+    KDNode(const nodePtr &node) : parent(node) {}
 };
 
 

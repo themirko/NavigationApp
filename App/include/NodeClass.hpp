@@ -20,6 +20,11 @@ public:
 
     ~Node() = default;
 
+    Node &operator=(const Node &) = delete;
+
+    std::string getId() const;
+    int getEdgesSize() const;
+
     void addEdge(Edge edge);
     void printNode() const;
 

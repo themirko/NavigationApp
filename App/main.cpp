@@ -1,16 +1,15 @@
 #include <iostream>
 
 #include "include/MapClass.hpp"
-#include "include/NodeClass.hpp"
 
 
+// 44.87769477055894, 20.666836137919265
 int main() {
 
     Map map{};
-    map.setupMapData();
-    // map.loadMap();
-    // map.printMap();
-    // map.printKDTree();
-    map.tree.findNearestNode(44.8650, 20.6591)->printNode();
+    map.loadMap();
+    // map.findShortestPathToDestination(44.8727, 20.6497, "Driving");
+    map.printMap();
+
     return 0;
 }

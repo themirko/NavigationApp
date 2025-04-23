@@ -14,15 +14,15 @@ class Map {
 
     TransportationMode toTransportationMode(const std::string &transportationMode) const;
 
-    void createOnewayStreet(std::ifstream &file,
-                            const std::string &streetName,
-                            const std::string &streetId,
-                            const std::string &transportationMode);
+    void loadStreet(std::ifstream &file, const std::string &streetName, const std::string &streetId,
+                    const std::string &transportationMode, const bool isOneway);
 
-    void createTwoWayStreet(std::ifstream &file,
-                            const std::string &streetName,
-                            const std::string &streetId,
-                            const std::string &transportationMode);
+    void loadNodesFromFile();
+    void removeOrphanNodes();
+    void buildKDTreeFromRegistry();
+
+    void DijkstraShortestPath(const nodePtr &startingPoint, const nodePtr &destinationPoint,
+                              const TransportationMode transportationMode);
 
 public:
 
@@ -30,8 +30,8 @@ public:
     ~Map() = default;
 
 
-    void setupMapData(); // make private after testing
     void loadMap();
+    void findShortestPathToDestination(const Degrees latitude, const Degrees longitude, const std::string &transportationMode);
 
     void printMap() const;
     void printKDTree() const;

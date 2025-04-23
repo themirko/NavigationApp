@@ -16,10 +16,18 @@ Node::Node(std::string id, const Degrees latitude, const Degrees longitude)
 }
 
 void Node::addEdge(Edge edge) {
-  this->edges.emplace_back(std::move(edge));
+    this->edges.emplace_back(std::move(edge));
 }
 
 void Node::printNode() const {
     std::cout << this->id << " ";
     std::cout << this->latitude << " " <<  this->longitude << std::endl;
+}
+
+std::string Node::getId() const {
+    return this->id;
+}
+
+int Node::getEdgesSize() const {
+    return this->edges.size();
 }
