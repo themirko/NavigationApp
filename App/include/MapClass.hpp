@@ -33,7 +33,7 @@ public:
     void loadMap();
     void findShortestPathToDestination(const Degrees latitude, const Degrees longitude, const std::string &transportationMode);
 
-    void printMap() const;
+    void plotMap() const;
     void printKDTree() const;
     void printNodes() const;
 };

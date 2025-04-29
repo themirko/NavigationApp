@@ -8,8 +8,8 @@ int main() {
 
     Map map{};
     map.loadMap();
-    // map.findShortestPathToDestination(44.8727, 20.6497, "Driving");
-    map.printMap();
+    map.findShortestPathToDestination(44.8727, 20.6497, "Driving");
+    map.plotMap();
 
     return 0;
 }

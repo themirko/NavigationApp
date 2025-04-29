@@ -6,6 +6,8 @@
 #include "../include/EdgeClass.hpp"
 #include "../include/GeoUtils.hpp"
 
+#include "matplotlibcpp.h"
+
 #include <fstream>
 #include <iostream>
 #include <algorithm>
@@ -54,7 +56,6 @@ void Map::loadNodesFromFile() {
           if (this->nodeRegistry.contains(nodeId)) continue;
 
           this->nodeRegistry[nodeId] = std::make_shared<Node>(nodeId, latitude, longitude);
-          // nodes.emplace_back(this->nodeRegistry[nodeId]);
      }
 
      if (!file.eof()) {
@@ -122,7 +123,6 @@ void Map::loadMap() {
      this->loadNodesFromFile();
 
      std::ifstream file("../../Parser/OSM/Ways.txt");
-
      if (!file) {
           std::cerr << "File does not exist! (loadMap)" << std::endl;
           return;
@@ -137,9 +137,10 @@ void Map::loadMap() {
           std::getline(file, streetName);
 
           if (!( file >> trafficDirection >> transportationMode)) break;
+          std::ranges::transform(trafficDirection, trafficDirection.begin(), toupper);
 
           bool isOneway;
-          trafficDirection == "oneway" ? isOneway = true : isOneway = false;
+          trafficDirection == "ONEWAY" ? isOneway = true : isOneway = false;
 
           loadStreet(file, streetName, streetId, transportationMode, isOneway);
      }
@@ -153,10 +154,7 @@ void Map::loadMap() {
      this->buildKDTreeFromRegistry();
 }
 
-void Map::printMap() const {
-     std::cout << std::size(this->nodeRegistry) << std::endl;
 
-}
 
 void Map::DijkstraShortestPath(const nodePtr &startingPoint, const nodePtr &destinationPoint, const TransportationMode transportationMode) {
 
@@ -179,7 +177,7 @@ void Map::DijkstraShortestPath(const nodePtr &startingPoint, const nodePtr &dest
 
           if (currentNode->getId() == destinationPoint->getId()) {
                std::cout << "target found" << std::endl;
-               break;
+               // break;
           }
 
           if (visitedNodes.contains(currentNode->getId())) continue;
@@ -231,6 +229,31 @@ void Map::printNodes() const {
 
 void Map::printKDTree() const {
      this->tree.printTree();
+}
+
+namespace plt = matplotlibcpp;
+
+void Map::plotMap() const {
+
+     std::vector<double> lats;
+     std::vector<double> lons;
+
+     std::vector single_lat = {44.87769477055894};
+     std::vector single_lon = {20.666836137919265};
+
+     for (const auto& [key, coord] : nodeRegistry) {
+          lats.push_back(coord->latitude);
+          lons.push_back(coord->longitude);
+     }
+     plt::figure_size(800, 600);
+     plt::scatter(lons, lats, 5.0);
+     plt::scatter(single_lon, single_lat, 5.0, {{"color", "r"}});
+
+     plt::xlabel("Longitude");
+     plt::ylabel("Latitude");
+     plt::title("Geographic Plot");
+     plt::grid(true);
+     plt::show();
 }
 
 
