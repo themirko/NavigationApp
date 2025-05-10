@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../include/types.hpp"
-#include "../include/MapClass.hpp"
-#include "../include/NodeClass.hpp"
-#include "../include/EdgeClass.hpp"
-#include "../include/GeoUtils.hpp"
+#include "../../include/utils/types.hpp"
+#include "../../include/map/Map.hpp"
+#include "../../include/map/Node.hpp"
+#include "../../include/map/Edge.hpp"
+#include "../../include/utils/GeoUtils.hpp"
+#include "../../include/map/PathDataStruct.hpp"
 
 #include "matplotlibcpp.h"
 
@@ -14,20 +15,8 @@
 #include <cmath>
 #include <queue>
 #include <unordered_set>
+#include <limits>
 
-struct pathData {
-     Kilometers distance = std::numeric_limits<Kilometers>::max();
-     nodePtr parent = nullptr;
-
-     void setData(const Kilometers distance, const nodePtr &parent) {
-          this->distance = distance;
-          this->parent = parent;
-     }
-
-     bool operator>(const pathData &other) const {
-          return this->distance > other.distance;
-     }
-};
 
 TransportationMode Map::toTransportationMode(const std::string &transportationMode) const {
 
@@ -154,7 +143,35 @@ void Map::loadMap() {
      this->buildKDTreeFromRegistry();
 }
 
+void Map::relaxEdges(const nodePtr &currentNode,
+                     std::unordered_map<std::string, pathData> &traversalData,
+                     std::priority_queue<pathData, std::vector<pathData>, std::greater<>> &availableNodes,
+                     const TransportationMode transportationMode) {
 
+     for (const Edge &edge : currentNode->edges) {
+          if (transportationMode != edge.transportationMode) continue;
+
+          const nodePtr neighborNode = edge.getNeighborNode();
+          if (!neighborNode) continue;
+
+          const std::string edgeNodeId = edge.getNodeId();
+          const Kilometers edgeNodeDistance = edge.getDistance();
+
+          if (traversalData[edgeNodeId].distance == INF) {
+               traversalData[edgeNodeId].setData(edgeNodeDistance, currentNode);
+               availableNodes.push(pathData(edgeNodeDistance, neighborNode));
+
+               continue;
+          }
+
+          const Kilometers tmpDistance = traversalData[currentNode->getId()].distance + edgeNodeDistance;
+          if (tmpDistance < traversalData[edgeNodeId].distance) {
+               traversalData[edgeNodeId].setData(tmpDistance, currentNode);
+               availableNodes.push(pathData(tmpDistance, neighborNode));
+          }
+
+     }
+}
 
 void Map::DijkstraShortestPath(const nodePtr &startingPoint, const nodePtr &destinationPoint, const TransportationMode transportationMode) {
 
@@ -168,38 +185,20 @@ void Map::DijkstraShortestPath(const nodePtr &startingPoint, const nodePtr &dest
           traversalData[key] = pathData();
      }
 
-     traversalData[startingPoint->getId()].distance = 0.0f;
+     traversalData[startingPoint->getId()].setData(0.0f, nullptr);
      availableNodes.push(pathData(0.0f, startingPoint));
 
      while (!availableNodes.empty()) {
           const nodePtr currentNode = availableNodes.top().parent;
+          const std::string currentNodeId = currentNode->getId();
+
           availableNodes.pop();
 
-          if (currentNode->getId() == destinationPoint->getId()) {
-               std::cout << "target found" << std::endl;
-               // break;
-          }
+          if (visitedNodes.contains(currentNodeId)) continue;
+          visitedNodes.insert(currentNodeId);
 
-          if (visitedNodes.contains(currentNode->getId())) continue;
-          visitedNodes.insert(currentNode->getId());
-
-          for (const Edge &edge : currentNode->edges) {
-               // if (transportationMode != edge.transportationMode) continue;
-
-               if (traversalData[edge.getNodeId()].distance == std::numeric_limits<float>::max()) {
-                    traversalData[edge.getNodeId()].setData(edge.getDistance(), currentNode);
-                    availableNodes.push(pathData(edge.getDistance(), edge.getNeighborNode()));
-
-                    continue;
-               }
-
-               const Kilometers tmpDistance = traversalData[currentNode->getId()].distance + edge.getDistance();
-               if (tmpDistance < traversalData[edge.getNodeId()].distance) {
-                    traversalData[edge.getNodeId()].setData(tmpDistance, currentNode);
-                    availableNodes.push(pathData(tmpDistance, edge.getNeighborNode()));
-               }
-
-          }
+          if (currentNodeId == destinationPoint->getId()) break;
+          this->relaxEdges(currentNode, traversalData, availableNodes, transportationMode);
      }
 
 }
@@ -233,27 +232,8 @@ void Map::printKDTree() const {
 
 namespace plt = matplotlibcpp;
 
-void Map::plotMap() const {
-
-     std::vector<double> lats;
-     std::vector<double> lons;
-
-     std::vector single_lat = {44.87769477055894};
-     std::vector single_lon = {20.666836137919265};
-
-     for (const auto& [key, coord] : nodeRegistry) {
-          lats.push_back(coord->latitude);
-          lons.push_back(coord->longitude);
-     }
-     plt::figure_size(800, 600);
-     plt::scatter(lons, lats, 5.0);
-     plt::scatter(single_lon, single_lat, 5.0, {{"color", "r"}});
-
-     plt::xlabel("Longitude");
-     plt::ylabel("Latitude");
-     plt::title("Geographic Plot");
-     plt::grid(true);
-     plt::show();
+std::unordered_map<std::string, nodePtr> Map::getNodeRegistry() const {
+     return this->nodeRegistry;
 }
 
 

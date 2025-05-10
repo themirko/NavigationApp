@@ -2,9 +2,11 @@
 
 #include <memory>
 #include <unordered_map>
+#include <queue>
 
-#include "types.hpp"
-#include "KDTreeClass.hpp"
+#include "../utils/types.hpp"
+#include "PathDataStruct.hpp"
+#include "KDTree.hpp"
 
 
 class Map {
@@ -16,6 +18,11 @@ class Map {
 
     void loadStreet(std::ifstream &file, const std::string &streetName, const std::string &streetId,
                     const std::string &transportationMode, const bool isOneway);
+
+    void relaxEdges(const nodePtr &currentNode,
+                          std::unordered_map<std::string, pathData> &traversalData,
+                          std::priority_queue<pathData, std::vector<pathData>, std::greater<>> &availableNodes,
+                          const TransportationMode transportationMode);
 
     void loadNodesFromFile();
     void removeOrphanNodes();
@@ -33,7 +40,8 @@ public:
     void loadMap();
     void findShortestPathToDestination(const Degrees latitude, const Degrees longitude, const std::string &transportationMode);
 
-    void plotMap() const;
     void printKDTree() const;
     void printNodes() const;
+
+    std::unordered_map<std::string, nodePtr> getNodeRegistry() const;
 };

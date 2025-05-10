@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-#include "types.hpp"
+#include "../utils/types.hpp"
 
 class KDTree {
 public:

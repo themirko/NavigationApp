@@ -1,8 +1,9 @@
 #pragma once
 
-#include "../include/KDTreeClass.hpp"
-#include "../include/NodeClass.hpp"
-#include "../include/GeoUtils.hpp"
+#include "../../include/utils/types.hpp"
+#include "../../include/map/KDTree.hpp"
+#include "../../include/map/Node.hpp"
+#include "../../include/utils/GeoUtils.hpp"
 
 #include <algorithm>
 #include <queue>

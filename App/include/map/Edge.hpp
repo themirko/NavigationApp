@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-#include "types.hpp"
+#include "../utils/types.hpp"
 
 class Edge {
 public:

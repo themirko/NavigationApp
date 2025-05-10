@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "types.hpp"
+#include "../utils/types.hpp"
 
 class Node {
 public:

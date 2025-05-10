@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <limits>
 
 enum class TransportationMode {
     DRIVING,
@@ -13,6 +14,7 @@ struct KDNode;
 class Node;
 class Edge;
 class KDTree;
+class Map;
 
 using nodePtr = std::shared_ptr<Node>;
 using KDPtr = std::shared_ptr<KDNode>;
@@ -29,5 +31,7 @@ struct KDNode {
 
     KDNode(const nodePtr &node) : parent(node) {}
 };
+
+constexpr float INF = std::numeric_limits<Kilometers>::max();
 
 

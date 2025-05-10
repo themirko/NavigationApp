@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../include/NodeClass.hpp"
-#include "../include/EdgeClass.hpp"
+#include "../../include/utils/types.hpp"
+#include "../../include/map/Node.hpp"
+#include "../../include/map/Edge.hpp"
 
 #include <iostream>
 #include <utility>

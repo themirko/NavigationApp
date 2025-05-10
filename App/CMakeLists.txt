@@ -9,10 +9,13 @@ add_definitions(-DWITHOUT_NUMPY)
 
 add_executable(NavigationApp
         main.cpp
-        src/MapClass.cpp
-        src/NodeClass.cpp
-        src/EdgeClass.cpp
-        src/KDTreeClass.cpp
+        src/map/Map.cpp
+        src/map/Node.cpp
+        src/map/Edge.cpp
+        src/map/KDTree.cpp
+        src/utils/GeoUtils.cpp
+        src/utils/plotter.cpp
+
 )
 
 find_path(MATPLOTLIB_CPP_INCLUDE_DIRS "matplotlibcpp.h")

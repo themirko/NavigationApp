@@ -1,14 +1,14 @@
 #pragma once
 
-#include "types.hpp"
-#include "NodeClass.hpp"
+#include "../../include/utils/types.hpp"
+#include "../../include/utils/geoUtils.hpp"
+#include "../../include/map/Node.hpp"
 
 #include <cmath>
 
 namespace GeoUtils {
-
-    inline Kilometers HaversineDistance(const Degrees latitude1, const Degrees longitude1,
-                                        const Degrees latitude2, const Degrees longitude2) {
+    Kilometers HaversineDistance(const Degrees latitude1, const Degrees longitude1,
+                                 const Degrees latitude2, const Degrees longitude2) {
         constexpr Radians DegreesToRadians = M_PI / 180.0;
         constexpr Kilometers earthRadius = 6371.0;
 
@@ -27,11 +27,11 @@ namespace GeoUtils {
         return angularDistance * earthRadius;
     }
 
-    inline Kilometers HaversineDistance(const nodePtr &node1, const nodePtr &node2) {
+    Kilometers HaversineDistance(const nodePtr &node1, const nodePtr &node2) {
         return HaversineDistance(node1->latitude, node1->longitude, node2->latitude, node2->longitude);
     }
 
-    inline  Kilometers HaversineDistance(const Degrees lat, const Degrees lon, const nodePtr &node) {
+    Kilometers HaversineDistance(const Degrees lat, const Degrees lon, const nodePtr &node) {
         return HaversineDistance(lat, lon, node->latitude, node->longitude);
     }
 }

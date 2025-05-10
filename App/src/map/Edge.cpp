@@ -1,11 +1,12 @@
 #pragma once
 
-#include "../include/EdgeClass.hpp"
+#include "../../include/utils/types.hpp"
+#include "../../include/map/Edge.hpp"
+#include "../../include/map/Node.hpp"
 
 #include <iostream>
 #include <memory>
 
-#include "../include/NodeClass.hpp"
 
 
 Edge::Edge(const std::string &streetName, const std::string &streetId, Kilometers distance,
