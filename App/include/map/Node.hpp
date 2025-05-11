@@ -23,6 +23,9 @@ public:
     Node &operator=(const Node &) = delete;
 
     std::string getId() const;
+    Degrees getLatitude() const;
+    Degrees getLongitude() const;
+
     int getEdgesSize() const;
 
     void addEdge(Edge edge);

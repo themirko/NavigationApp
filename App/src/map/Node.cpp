@@ -29,6 +29,15 @@ std::string Node::getId() const {
     return this->id;
 }
 
+
+Degrees Node::getLatitude() const {
+    return this->latitude;
+}
+
+Degrees Node::getLongitude() const {
+    return this->longitude;
+}
+
 int Node::getEdgesSize() const {
     return this->edges.size();
 }

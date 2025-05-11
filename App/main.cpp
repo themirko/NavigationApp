@@ -10,8 +10,9 @@ int main() {
 
     Map map{};
     map.loadMap();
-    map.findShortestPathToDestination(44.8727, 20.6497, "Driving");
-    plotter::plotMap(map);
+
+    std::vector path = map.findShortestPathToDestination(44.87274293555709, 20.649742759559512, "Driving");
+    plotter::mapPlot(map, path);
 
     return 0;
 }

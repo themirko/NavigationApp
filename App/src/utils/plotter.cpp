@@ -7,16 +7,23 @@
 
 #include "matplotlibcpp.h"
 
+#include <vector>
+
 namespace plotter {
     namespace plt = matplotlibcpp;
 
-    void plotMap(const Map &map) {
+    void mapPlot(const Map &map, std::vector<nodePtr> &path) {
 
-        std::vector<double> lats;
-        std::vector<double> lons;
+        std::vector<Degrees> lats;
+        std::vector<Degrees> lons;
 
-        std::vector single_lat = {44.87769477055894};
-        std::vector single_lon = {20.666836137919265};
+        std::vector<Degrees> pathLats;
+        std::vector<Degrees> pathLons;
+
+        for (nodePtr node : path) {
+            pathLats.push_back(node->getLatitude());
+            pathLons.push_back(node->getLongitude());
+        }
 
         for (const auto& [key, coord] : map.getNodeRegistry()) {
             lats.push_back(coord->latitude);
@@ -24,7 +31,7 @@ namespace plotter {
         }
         plt::figure_size(800, 600);
         plt::scatter(lons, lats, 5.0);
-        plt::scatter(single_lon, single_lat, 5.0, {{"color", "r"}});
+        plt::plot(pathLons, pathLats, {{"color", "r"}, {"label", "path line"}});
 
         plt::xlabel("Longitude");
         plt::ylabel("Latitude");

@@ -17,7 +17,6 @@
 #include <unordered_set>
 #include <limits>
 
-
 TransportationMode Map::toTransportationMode(const std::string &transportationMode) const {
 
      std::string tM = transportationMode;
@@ -54,8 +53,11 @@ void Map::loadNodesFromFile() {
 
 }
 
-void Map::loadStreet(std::ifstream &file, const std::string &streetName, const std::string &streetId,
-                     const std::string &transportationMode, const bool isOneway) {
+void Map::loadStreet(std::ifstream &file,
+                     const std::string &streetName,
+                     const std::string &streetId,
+                     const std::string &transportationMode,
+                     const bool isOneway) {
 
      std::string currentNodeId, nextNodeId;
      const TransportationMode mode = toTransportationMode(transportationMode);
@@ -81,10 +83,13 @@ void Map::loadStreet(std::ifstream &file, const std::string &streetName, const s
           nodePtr nextNode = this->nodeRegistry[nextNodeId];
           const Kilometers distance = GeoUtils::HaversineDistance(currentNode, nextNode);
 
+          if (!distance || currentNode == nextNode) continue;
+
           currentNode->addEdge(Edge(streetName, streetId, distance, mode, nextNode));
           if (!isOneway) nextNode->addEdge(Edge(streetName, streetId, distance, mode, currentNode));
 
           currentNode = nextNode;
+          currentNodeId = currentNode->getId();
      }
 }
 
@@ -143,9 +148,24 @@ void Map::loadMap() {
      this->buildKDTreeFromRegistry();
 }
 
+std::vector<nodePtr> Map::reconstructPath(const nodePtr &destinationPoint,
+                                          std::unordered_map<std::string, pathData> &traversalData) {
+     std::vector<nodePtr> path;
+
+     nodePtr currentNode = destinationPoint;
+     while (currentNode) {
+          path.insert(path.begin(), currentNode);
+          currentNode = traversalData[currentNode->getId()].getParent();
+     }
+
+     return path;
+
+}
+
 void Map::relaxEdges(const nodePtr &currentNode,
                      std::unordered_map<std::string, pathData> &traversalData,
                      std::priority_queue<pathData, std::vector<pathData>, std::greater<>> &availableNodes,
+                     std::unordered_set<std::string> &visitedNodes,
                      const TransportationMode transportationMode) {
 
      for (const Edge &edge : currentNode->edges) {
@@ -155,25 +175,29 @@ void Map::relaxEdges(const nodePtr &currentNode,
           if (!neighborNode) continue;
 
           const std::string edgeNodeId = edge.getNodeId();
-          const Kilometers edgeNodeDistance = edge.getDistance();
+          const Kilometers tmpDistance = traversalData[currentNode->getId()].getDistance() + edge.getDistance();
 
-          if (traversalData[edgeNodeId].distance == INF) {
-               traversalData[edgeNodeId].setData(edgeNodeDistance, currentNode);
-               availableNodes.push(pathData(edgeNodeDistance, neighborNode));
+          if (visitedNodes.contains(edgeNodeId)) continue;
+
+          if (traversalData[edgeNodeId].getDistance() == INF) {
+               traversalData[edgeNodeId].setData(tmpDistance, currentNode);
+               availableNodes.push(pathData(tmpDistance, neighborNode));
 
                continue;
           }
 
-          const Kilometers tmpDistance = traversalData[currentNode->getId()].distance + edgeNodeDistance;
-          if (tmpDistance < traversalData[edgeNodeId].distance) {
+
+          if (tmpDistance < traversalData[edgeNodeId].getDistance()) {
                traversalData[edgeNodeId].setData(tmpDistance, currentNode);
                availableNodes.push(pathData(tmpDistance, neighborNode));
           }
-
      }
 }
 
-void Map::DijkstraShortestPath(const nodePtr &startingPoint, const nodePtr &destinationPoint, const TransportationMode transportationMode) {
+
+std::vector<nodePtr> Map::DijkstraShortestPath(const nodePtr &startingPoint,
+                                               const nodePtr &destinationPoint,
+                                               const TransportationMode transportationMode) {
 
      std::priority_queue<pathData, std::vector<pathData>, std::greater<>> availableNodes;
      std::unordered_set<std::string> visitedNodes;
@@ -189,7 +213,7 @@ void Map::DijkstraShortestPath(const nodePtr &startingPoint, const nodePtr &dest
      availableNodes.push(pathData(0.0f, startingPoint));
 
      while (!availableNodes.empty()) {
-          const nodePtr currentNode = availableNodes.top().parent;
+          const nodePtr currentNode = availableNodes.top().getParent();
           const std::string currentNodeId = currentNode->getId();
 
           availableNodes.pop();
@@ -198,25 +222,28 @@ void Map::DijkstraShortestPath(const nodePtr &startingPoint, const nodePtr &dest
           visitedNodes.insert(currentNodeId);
 
           if (currentNodeId == destinationPoint->getId()) break;
-          this->relaxEdges(currentNode, traversalData, availableNodes, transportationMode);
+          this->relaxEdges(currentNode, traversalData, availableNodes, visitedNodes, transportationMode);
      }
+
+     return this->reconstructPath(destinationPoint, traversalData);
 
 }
 
+std::vector<nodePtr> Map::findShortestPathToDestination(const Degrees latitude,
+                                                        const Degrees longitude,
+                                                        const std::string &transportationMode) {
 
-void Map::findShortestPathToDestination(const Degrees latitude, const Degrees longitude, const std::string &transportationMode) {
-
-     const Degrees startingPointLatitude = 44.8777, startingPointLongitude = 20.6668;
+     const Degrees startingPointLatitude = 44.877338055650206, startingPointLongitude = 20.66571439220806;
 
      nodePtr startingPoint = tree.findNearestNode(startingPointLatitude, startingPointLongitude);
      nodePtr destinationPoint = tree.findNearestNode(latitude, longitude);
 
      if (!startingPoint || !destinationPoint) {
           std::cerr << "Could not find nearest nodes! (findShortestPathToDestination)" << std::endl;
-          return;
+          return {};
      }
 
-     DijkstraShortestPath(startingPoint, destinationPoint, toTransportationMode(transportationMode));
+     return DijkstraShortestPath(startingPoint, destinationPoint, toTransportationMode(transportationMode));
 }
 
 
@@ -229,8 +256,6 @@ void Map::printNodes() const {
 void Map::printKDTree() const {
      this->tree.printTree();
 }
-
-namespace plt = matplotlibcpp;
 
 std::unordered_map<std::string, nodePtr> Map::getNodeRegistry() const {
      return this->nodeRegistry;

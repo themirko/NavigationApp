@@ -18,8 +18,11 @@ public:
     void printTree() const;
 
 private:
-    std::pair<nodePtr, Kilometers> findNearestNodeRecursive(const Degrees latitude, const Degrees longitude, const KDPtr &currentRoot,
-                                                            const long depth, std::pair<nodePtr, Kilometers> currentBestNode);
+    std::pair<nodePtr, Kilometers> findNearestNodeRecursive(const Degrees latitude,
+                                                            const Degrees longitude,
+                                                            const KDPtr &currentRoot,
+                                                            const long depth,
+                                                            std::pair<nodePtr, Kilometers> currentBestNode);
     KDPtr createNode(const nodePtr &mapNode);
 
     void buildTreeRecursive(KDPtr &currentRoot, std::vector<nodePtr> &nodes, const long depth);

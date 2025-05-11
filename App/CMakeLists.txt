@@ -13,6 +13,7 @@ add_executable(NavigationApp
         src/map/Node.cpp
         src/map/Edge.cpp
         src/map/KDTree.cpp
+        src/map/PathDataStruct.cpp
         src/utils/GeoUtils.cpp
         src/utils/plotter.cpp
 

@@ -6,12 +6,10 @@ struct pathData {
     Kilometers distance = INF;
     nodePtr parent = nullptr;
 
-    void setData(const Kilometers distance, const nodePtr &parent) {
-        this->distance = distance;
-        this->parent = parent;
-    }
+    void setData(const Kilometers distance, const nodePtr &parent);
 
-    bool operator>(const pathData &other) const {
-        return this->distance > other.distance;
-    }
+    nodePtr getParent() const;
+    Kilometers getDistance() const;
+
+    bool operator>(const pathData &other) const;
 };

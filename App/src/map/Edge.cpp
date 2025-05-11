@@ -9,12 +9,15 @@
 
 
 
-Edge::Edge(const std::string &streetName, const std::string &streetId, Kilometers distance,
-           TransportationMode transportationMode, nodePtr neighbor) : streetName(streetName),
-                                                                      streetId(streetId),
-                                                                      distance(distance),
-                                                                      transportationMode(transportationMode),
-                                                                      nodeNeighbor(neighbor) {}
+Edge::Edge(const std::string &streetName,
+           const std::string &streetId,
+           Kilometers distance,
+           TransportationMode transportationMode,
+           nodePtr neighbor) : streetName(streetName),
+                               streetId(streetId),
+                               distance(distance),
+                               transportationMode(transportationMode),
+                               nodeNeighbor(neighbor) {}
 
 
 std::string Edge::getNodeId() const {

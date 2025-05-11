@@ -2,6 +2,8 @@
 
 #include "../../include/utils/types.hpp"
 
+#include <vector>
+
 namespace plotter {
-    void plotMap(const Map &map);
+    void mapPlot(const Map &map, std::vector<nodePtr> &path);
 }

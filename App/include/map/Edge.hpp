@@ -16,8 +16,11 @@ public:
     nodePtr nodeNeighbor;
 
     Edge() = delete;
-    Edge(const std::string &streetName, const std::string &streetId, Kilometers distance,
-         TransportationMode TransportationMode, nodePtr neighbor);
+    Edge(const std::string &streetName,
+         const std::string &streetId,
+         Kilometers distance,
+         TransportationMode TransportationMode,
+         nodePtr neighbor);
 
     ~Edge() = default;
 
