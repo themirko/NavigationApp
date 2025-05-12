@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "include/utils/plotter.hpp"
-
 #include "include/map/Map.hpp"
 
 
