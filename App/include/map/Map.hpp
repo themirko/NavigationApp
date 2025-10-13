@@ -51,8 +51,10 @@ public:
     void loadMap();
 
     std::vector<nodePtr> findShortestPathToDestination(
-      const Degrees latitude,
-      const Degrees longitude,
+      const Degrees startLat,
+      const Degrees startLon,
+      const Degrees endLat,
+      const Degrees endLon,
       const std::string& transportationMode);
 
     void printKDTree() const;

@@ -13,10 +13,12 @@ int main(int argc, char *argv[]) {
     Map map{};
     map.loadMap();
 
-    std::vector path = map.findShortestPathToDestination(44.87274293555709,
+    /*std::vector path = map.findShortestPathToDestination(44.877338055650206,
+                                                         20.66571439220806,
+                                                         44.87274293555709,
                                                          20.649742759559512,
-                                                         "Driving");
-    MapWindow window(&map, path);
+                                                         "Driving");*/
+    MapWindow window(&map);
     window.show();
 
     return app.exec();

@@ -242,15 +242,14 @@ std::vector<nodePtr> Map::DijkstraShortestPath(
 }
 
 std::vector<nodePtr> Map::findShortestPathToDestination(
-  const Degrees latitude,
-  const Degrees longitude,
+  const Degrees startLat,
+  const Degrees startLon,
+  const Degrees endLat,
+  const Degrees endLon,
   const std::string& transportationMode) {
 
-  const Degrees startLat = 44.877338055650206;
-  const Degrees startLon = 20.66571439220806;
-
   nodePtr start = tree.findNearestNode(startLat, startLon);
-  nodePtr dest = tree.findNearestNode(latitude, longitude);
+  nodePtr dest = tree.findNearestNode(endLat, endLon);
 
   if (!start || !dest) {
     std::cerr << "Could not find nearest nodes! "

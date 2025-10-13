@@ -1,5 +1,5 @@
 # GPS Navigation App
-A simple yet powerful GPS navigation system that calculates the shortest path between two points in your city using Dijkstra’s algorithm. It parses map data, builds a custom graph, and visualizes the result. There is no UI yet, but a plotting function displays the computed path.
+A simple GPS navigation system that calculates the shortest path between two points in your city using Dijkstra’s algorithm. It parses map data, builds a custom graph, and visualizes the result.
 
 ![Navigation Demo](plot.png)
 

@@ -1,6 +1,8 @@
 #include <QPen>
 #include <QWheelEvent>
 #include <QMouseEvent>
+#include <QMessageBox>
+
 #include <algorithm>
 #include <cmath>
 
@@ -13,6 +15,7 @@ MapWindow::MapWindow(Map* map, std::vector<nodePtr> path, QWidget* parent)
   : QMainWindow(parent), map(map), path(std::move(path)) {
   resize(1000, 800);
   calculateBounds();
+  setupControls();
 }
 
 void MapWindow::calculateBounds() {
@@ -29,6 +32,133 @@ void MapWindow::calculateBounds() {
     maxLon = std::max(maxLon, static_cast<double>(node->getLongitude()));
   }
 }
+
+void MapWindow::drawArrow(QPainter& painter,
+                          const QPointF& p1,
+                          const QPointF& p2) const {
+  QLineF line(p1, p2);
+  double angle = std::atan2(-line.dy(), line.dx());
+  const double arrowSize = 6.0;
+
+  QPointF arrowP1 = p2 - QPointF(std::cos(angle + M_PI / 6) * arrowSize,
+                                 -std::sin(angle + M_PI / 6) * arrowSize);
+  QPointF arrowP2 = p2 - QPointF(std::cos(angle - M_PI / 6) * arrowSize,
+                                 -std::sin(angle - M_PI / 6) * arrowSize);
+
+  QPolygonF arrowHead;
+  arrowHead << p2 << arrowP1 << arrowP2;
+
+  painter.save();
+  painter.setBrush(QColor("#FFF176"));
+  painter.setPen(QPen(Qt::black, 1));
+  painter.drawPolygon(arrowHead);
+  painter.restore();
+}
+
+void MapWindow::setupControls() {
+  QWidget* panel = new QWidget(this);
+  panel->setFixedHeight(80);
+
+  startLatInput = new QLineEdit();
+  startLatInput->setPlaceholderText("Start latitude");
+
+  startLonInput = new QLineEdit();
+  startLonInput->setPlaceholderText("Start longitude");
+
+  endLatInput = new QLineEdit();
+  endLatInput->setPlaceholderText("End latitude");
+
+  endLonInput = new QLineEdit();
+  endLonInput->setPlaceholderText("End longitude");
+
+  calcButton = new QPushButton("Find route");
+
+  QHBoxLayout* leftLayout = new QHBoxLayout();
+  leftLayout->addWidget(startLatInput);
+  leftLayout->addWidget(startLonInput);
+
+  QHBoxLayout* rightLayout = new QHBoxLayout();
+  rightLayout->addWidget(endLatInput);
+  rightLayout->addWidget(endLonInput);
+
+  QHBoxLayout* mainLayout = new QHBoxLayout();
+  mainLayout->addLayout(leftLayout);
+  mainLayout->addStretch();
+  mainLayout->addWidget(calcButton);
+  mainLayout->addStretch();
+  mainLayout->addLayout(rightLayout);
+
+  panel->setLayout(mainLayout);
+
+  QWidget* central = new QWidget(this);
+  QVBoxLayout* verticalLayout = new QVBoxLayout(central);
+  verticalLayout->addWidget(panel);
+  verticalLayout->addStretch();
+  setCentralWidget(central);
+
+  connect(calcButton, &QPushButton::clicked,
+          this, &MapWindow::onCalculateClicked);
+
+  QString style = R"(
+    QLineEdit {
+      background-color: #FFF176;
+      border: 1px solid #FBC02D;
+      border-radius: 4px;
+      padding: 6px;
+      font-size: 14px;
+      color: black;
+    }
+
+    QLineEdit:focus {
+      border: 1px solid #F9A825;
+      background-color: #FFEE58;
+    }
+
+    QLineEdit::placeholder {
+      color: #555;
+      font-style: italic;
+    }
+
+    QPushButton {
+      background-color: #FBC02D;
+      color: black;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-weight: bold;
+    }
+
+    QPushButton:hover {
+      background-color: #F9A825;
+      color: black;
+    }
+
+    QPushButton:pressed {
+      background-color: #F57F17;
+      color: white;
+    }
+  )";
+  panel->setStyleSheet(style);
+}
+
+void MapWindow::onCalculateClicked() {
+  bool ok1, ok2, ok3, ok4;
+  double startLat = startLatInput->text().toDouble(&ok1);
+  double startLon = startLonInput->text().toDouble(&ok2);
+  double endLat = endLatInput->text().toDouble(&ok3);
+  double endLon = endLonInput->text().toDouble(&ok4);
+
+  if (!(ok1 && ok2 && ok3 && ok4)) {
+    QMessageBox::warning(this, "Error",
+                         "Not correct values inserted!");
+    return;
+  }
+
+  path = map->findShortestPathToDestination(
+    startLat, startLon, endLat, endLon, "Driving");
+
+  update();
+}
+
 
 void MapWindow::wheelEvent(QWheelEvent* event) {
   const double zoomStep = 1.15;
@@ -77,7 +207,7 @@ void MapWindow::mouseReleaseEvent(QMouseEvent* event) {
 void MapWindow::paintEvent(QPaintEvent*) {
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
-  painter.fillRect(rect(), Qt::white);
+  painter.fillRect(rect(), QColor(204, 255, 204));
 
   double w = width();
   double h = height();
@@ -107,6 +237,7 @@ void MapWindow::paintEvent(QPaintEvent*) {
       QPointF p2 = transformCoord(neighbor->getLongitude(),
                                   neighbor->getLatitude());
       painter.drawLine(p1, p2);
+      drawArrow(painter, p1, p2);
     }
   }
 
