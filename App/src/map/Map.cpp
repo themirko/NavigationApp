@@ -32,7 +32,7 @@ TransportationMode Map::toTransportationMode(
 }
 
 void Map::loadNodesFromFile() {
-  std::ifstream file("../../Parser/OSM/NodesB.txt");
+  std::ifstream file("../../Parser/OSM/NodesBB.txt");
 
   if (!file) {
     std::cerr << "File does not exist! (loadNodesFromFile)" << std::endl;
@@ -125,7 +125,7 @@ void Map::buildKDTreeFromRegistry() {
 void Map::loadMap() {
   this->loadNodesFromFile();
 
-  std::ifstream file("../../Parser/OSM/WaysB.txt");
+  std::ifstream file("../../Parser/OSM/WaysBB.txt");
   if (!file) {
     std::cerr << "File does not exist! (loadMap)" << std::endl;
     return;

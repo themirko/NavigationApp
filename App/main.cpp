@@ -12,11 +12,11 @@ int main() {
     Map map;
     map.loadMap();
 
-    double startLat = 44.876399694291315;
-    double startLon = 20.644869315217775;
+    double startLat = 52.51619296900066;
+    double startLon = 13.375329033130757;
 
-    double endLat = 44.87818636132476;
-    double endLon = 20.67025723360111;
+    double endLat = 52.515153652600084;
+    double endLon = 13.406953707030942;
 
     auto kdStart = high_resolution_clock::now();
     nodePtr startNode = map.findNearestNode(startLat, startLon);
