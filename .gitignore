@@ -6,3 +6,6 @@
 
 # OSM binary map files
 *.pbf
+
+Parser/OSM/
+

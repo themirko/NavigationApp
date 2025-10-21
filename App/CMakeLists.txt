@@ -31,8 +31,13 @@ target_include_directories(NavigationApp PRIVATE
   ${Qt6Widgets_INCLUDE_DIRS}
 )
 
-#find_path(MATPLOTLIB_CPP_INCLUDE_DIRS "matplotlibcpp.h")
-#target_include_directories(NavigationApp PRIVATE ${MATPLOTLIB_CPP_INCLUDE_DIRS})
+find_path(MATPLOTLIB_CPP_INCLUDE_DIRS "matplotlibcpp.h" PATHS
+  "C:/Users/Dusan/Documents/matplotlib-cpp"
+  "C:/matplotlib-cpp"
+  "$ENV{HOME}/matplotlib-cpp"
+  REQUIRED
+)
+target_include_directories(NavigationApp PRIVATE ${MATPLOTLIB_CPP_INCLUDE_DIRS})
 
 include_directories(
   "C:/Users/Dusan/AppData/Local/Programs/Python/Python313/include"
@@ -45,4 +50,9 @@ target_link_libraries(NavigationApp
   PRIVATE
   Qt6::Widgets
   "C:/Users/Dusan/AppData/Local/Programs/Python/Python313/libs/python313.lib"
+)
+
+add_custom_command(TARGET NavigationApp POST_BUILD
+  COMMAND "C:/Qt/6.10.0/mingw_64/bin/windeployqt.exe" "$<TARGET_FILE:NavigationApp>"
+  COMMENT "Deploying Qt DLLs..."
 )

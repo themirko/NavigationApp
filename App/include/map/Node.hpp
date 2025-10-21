@@ -8,6 +8,7 @@
 class Node {
 public:
     const std::string id;
+    int index = -1;
 
     Degrees latitude = 0.0;
     Degrees longitude = 0.0;

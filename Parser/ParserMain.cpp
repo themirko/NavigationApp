@@ -7,7 +7,7 @@
 
 int main()
 {
-    const char* filePath = R"(C:\Users\Dusan\CLionProjects\NavigationApp\Parser\OSM\input.osm)";
+    const char* filePath = R"(C:\Users\Dusan\CLionProjects\NavigationApp\Parser\OSM\gsa.pbf)";
     std::thread thread1(&OSMParser::ObjectExtraction::nodes, filePath);
     std::thread thread2(&OSMParser::ObjectExtraction::ways, filePath);
 

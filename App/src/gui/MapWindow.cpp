@@ -38,7 +38,7 @@ void MapWindow::drawArrow(QPainter& painter,
                           const QPointF& p2) const {
   QLineF line(p1, p2);
   double angle = std::atan2(-line.dy(), line.dx());
-  const double arrowSize = 6.0;
+  const double arrowSize = 9.0;
 
   QPointF arrowP1 = p2 - QPointF(std::cos(angle + M_PI / 6) * arrowSize,
                                  -std::sin(angle + M_PI / 6) * arrowSize);
@@ -50,7 +50,7 @@ void MapWindow::drawArrow(QPainter& painter,
 
   painter.save();
   painter.setBrush(QColor("#FFF176"));
-  painter.setPen(QPen(Qt::black, 1));
+  //painter.setPen(QPen(Qt::black, 1));
   painter.drawPolygon(arrowHead);
   painter.restore();
 }
@@ -242,7 +242,7 @@ void MapWindow::paintEvent(QPaintEvent*) {
   }
 
   QPen nodePen(Qt::black);
-  nodePen.setWidth(2);
+  nodePen.setWidth(1);
   painter.setPen(nodePen);
 
   for (const auto& [id, node] : map->getNodeRegistry()) {

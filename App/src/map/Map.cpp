@@ -14,12 +14,14 @@
 #include <queue>
 #include <unordered_set>
 #include <limits>
+#include <chrono>
+
 
 TransportationMode Map::toTransportationMode(
   const std::string& transportationMode) const {
 
   std::string tM = transportationMode;
-  std::ranges::transform(tM, tM.begin(), toupper);
+  std::ranges::transform(tM.begin(), tM.end(), tM.begin(), ::toupper);
 
   if (tM == "DRIVING") return TransportationMode::DRIVING;
   if (tM == "WALKING") return TransportationMode::WALKING;
@@ -30,7 +32,7 @@ TransportationMode Map::toTransportationMode(
 }
 
 void Map::loadNodesFromFile() {
-  std::ifstream file("../../Parser/OSM/Nodes.txt");
+  std::ifstream file("../../Parser/OSM/NodesRS.txt");
 
   if (!file) {
     std::cerr << "File does not exist! (loadNodesFromFile)" << std::endl;
@@ -123,7 +125,7 @@ void Map::buildKDTreeFromRegistry() {
 void Map::loadMap() {
   this->loadNodesFromFile();
 
-  std::ifstream file("../../Parser/OSM/Ways.txt");
+  std::ifstream file("../../Parser/OSM/WaysRS.txt");
   if (!file) {
     std::cerr << "File does not exist! (loadMap)" << std::endl;
     return;
@@ -153,52 +155,65 @@ void Map::loadMap() {
   }
 
   this->removeOrphanNodes();
+
+  int idx = 0;
+  for (auto& [id, node] : this->nodeRegistry) {
+    node->index = idx++;
+  }
+  this->nodeCount = idx;
   this->buildKDTreeFromRegistry();
 }
 
 std::vector<nodePtr> Map::reconstructPath(
   const nodePtr& destinationPoint,
-  std::unordered_map<std::string, pathData>& traversalData) {
-  std::vector<nodePtr> path;
+   const std::vector<pathData>& traversalData) {
 
+  std::vector<nodePtr> path;
   nodePtr currentNode = destinationPoint;
+
   while (currentNode) {
     path.insert(path.begin(), currentNode);
-    currentNode = traversalData[currentNode->getId()].getParent();
+    int parentIndex = traversalData[currentNode->index].getParent()
+                      ? traversalData[currentNode->index].getParent()->index
+                      : -1;
+    if (parentIndex == -1)
+      break;
+    currentNode = traversalData[currentNode->index].getParent();
   }
   return path;
 }
 
 void Map::relaxEdges(
   const nodePtr& currentNode,
-  std::unordered_map<std::string, pathData>& traversalData,
+  std::vector<pathData>& traversalData,
   std::priority_queue<pathData,
                       std::vector<pathData>,
                       std::greater<>>& availableNodes,
-  std::unordered_set<std::string>& visitedNodes,
+  std::vector<bool>& visitedNodes,
   const TransportationMode transportationMode) {
 
+  int currentIndex = currentNode->index;
   for (const Edge& edge : currentNode->edges) {
-    if (transportationMode != edge.transportationMode) continue;
+    //if (transportationMode != edge.transportationMode) continue;
 
     const nodePtr neighborNode = edge.getNeighborNode();
     if (!neighborNode) continue;
 
-    const std::string edgeNodeId = edge.getNodeId();
-    const Kilometers tmpDistance =
-      traversalData[currentNode->getId()].getDistance() +
-      edge.getDistance();
+    int neighborIndex = neighborNode->index;
+    if (visitedNodes[neighborIndex]) continue;
 
-    if (visitedNodes.contains(edgeNodeId)) continue;
+    Kilometers tmpDistance =
+            traversalData[currentIndex].getDistance() + edge.getDistance();
 
-    if (traversalData[edgeNodeId].getDistance() == INF) {
-      traversalData[edgeNodeId].setData(tmpDistance, currentNode);
+
+    if (traversalData[neighborIndex].getDistance() == INF) {
+      traversalData[neighborIndex].setData(tmpDistance, currentNode);
       availableNodes.push(pathData(tmpDistance, neighborNode));
       continue;
     }
 
-    if (tmpDistance < traversalData[edgeNodeId].getDistance()) {
-      traversalData[edgeNodeId].setData(tmpDistance, currentNode);
+    if (tmpDistance < traversalData[neighborIndex].getDistance()) {
+      traversalData[neighborIndex].setData(tmpDistance, currentNode);
       availableNodes.push(pathData(tmpDistance, neighborNode));
     }
   }
@@ -212,26 +227,22 @@ std::vector<nodePtr> Map::DijkstraShortestPath(
   std::priority_queue<pathData,
                       std::vector<pathData>,
                       std::greater<>> availableNodes;
-  std::unordered_set<std::string> visitedNodes;
 
-  std::unordered_map<std::string, pathData> traversalData;
-  traversalData.reserve(this->nodeRegistry.size());
+  std::vector<pathData> traversalData(this->nodeCount);
+  std::vector<bool> visitedNodes(this->nodeCount, false);
 
-  for (const auto& [key, _] : this->nodeRegistry)
-    traversalData[key] = pathData();
-
-  traversalData[startingPoint->getId()].setData(0.0f, nullptr);
+  traversalData[startingPoint->index].setData(0.0f, nullptr);
   availableNodes.push(pathData(0.0f, startingPoint));
 
   while (!availableNodes.empty()) {
     const nodePtr currentNode = availableNodes.top().getParent();
-    const std::string currentNodeId = currentNode->getId();
+    int currentIndex = currentNode->index;
     availableNodes.pop();
 
-    if (visitedNodes.contains(currentNodeId)) continue;
-    visitedNodes.insert(currentNodeId);
+    if (visitedNodes[currentIndex]) continue;
+    visitedNodes[currentIndex] = true;
 
-    if (currentNodeId == destinationPoint->getId()) break;
+    if (currentIndex == destinationPoint->index) break;
 
     this->relaxEdges(
       currentNode, traversalData, availableNodes,
@@ -262,10 +273,21 @@ std::vector<nodePtr> Map::findShortestPathToDestination(
     start, dest, toTransportationMode(transportationMode));
 }
 
-void Map::printNodes() const {
-  for (const auto& node : this->nodeRegistry)
-    node.second->printNode();
+
+void Map::printNumOfNodes() const {
+  std::cout << "Number of nodes: " << nodeRegistry.size() << std::endl;
 }
+
+void Map::printNumOfEdges() const {
+  std::size_t edgeCount = 0;
+
+  for (const auto& [id, node] : this->nodeRegistry) {
+    edgeCount += node->getEdgesSize();
+  }
+
+  std::cout << "Number of edges: " << edgeCount << std::endl;
+}
+
 
 void Map::printKDTree() const {
   this->tree.printTree();

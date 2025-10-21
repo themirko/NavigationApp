@@ -5,7 +5,7 @@
 #include "../../include/map/Node.hpp"
 #include "../../include/map/Map.hpp"
 
-//#include "matplotlibcpp.h"
+#include "matplotlibcpp.h"
 
 #include <vector>
 

@@ -13,6 +13,8 @@ class Map {
     std::unordered_map<std::string, nodePtr> nodeRegistry;
     KDTree tree;
 
+    int nodeCount = 0;
+
     TransportationMode toTransportationMode(
       const std::string& transportationMode) const;
 
@@ -28,16 +30,16 @@ class Map {
 
     void relaxEdges(
       const nodePtr& currentNode,
-      std::unordered_map<std::string, pathData>& traversalData,
+      std::vector<pathData>& traversalData,
       std::priority_queue<pathData,
                           std::vector<pathData>,
                           std::greater<>>& availableNodes,
-      std::unordered_set<std::string>& visitedNodes,
+      std::vector<bool>& visitedNodes,
       const TransportationMode transportationMode);
 
     std::vector<nodePtr> reconstructPath(
       const nodePtr& destinationPoint,
-      std::unordered_map<std::string, pathData>& traversalData);
+       const std::vector<pathData>& traversalData);
 
     std::vector<nodePtr> DijkstraShortestPath(
       const nodePtr& startingPoint,
@@ -58,7 +60,8 @@ public:
       const std::string& transportationMode);
 
     void printKDTree() const;
-    void printNodes() const;
+    void printNumOfNodes() const;
+    void printNumOfEdges() const;
 
     std::unordered_map<std::string, nodePtr> getNodeRegistry() const;
 };
