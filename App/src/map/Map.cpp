@@ -155,6 +155,7 @@ void Map::loadMap() {
   }
 
   this->removeOrphanNodes();
+  this->simplifyGraph();
 
   int idx = 0;
   for (auto& [id, node] : this->nodeRegistry) {
@@ -275,11 +276,11 @@ std::vector<nodePtr> Map::findShortestPathToDestination(
 
 
 void Map::printNumOfNodes() const {
-  std::cout << "Number of nodes: " << nodeRegistry.size() << std::endl;
+  std::cout << "Number of nodes: " << this->nodeCount << std::endl;
 }
 
 void Map::printNumOfEdges() const {
-  std::size_t edgeCount = 0;
+  int edgeCount = 0;
 
   for (const auto& [id, node] : this->nodeRegistry) {
     edgeCount += node->getEdgesSize();
@@ -295,4 +296,45 @@ void Map::printKDTree() const {
 
 std::unordered_map<std::string, nodePtr> Map::getNodeRegistry() const {
   return this->nodeRegistry;
+}
+
+void Map::simplifyGraph() {
+  std::vector<std::string> toRemove;
+
+  for (const auto& [id, node] : nodeRegistry) {
+    if (node->edges.size() != 2) continue;
+
+    const Edge& e1 = node->edges[0];
+    const Edge& e2 = node->edges[1];
+    if (e1.streetId != e2.streetId) continue;
+
+    nodePtr n1 = e1.getNeighborNode();
+    nodePtr n2 = e2.getNeighborNode();
+
+    if (!n1 || !n2) continue;
+    if (e1.transportationMode != e2.transportationMode) continue;
+
+    Kilometers dist = e1.getDistance() + e2.getDistance();
+
+    n1->addEdge(Edge(e1.streetName,
+                     e1.streetId,
+                     dist,
+                     e1.transportationMode,
+                     n2));
+    n2->addEdge(Edge(e2.streetName,
+                     e2.streetId,
+                     dist,
+                     e2.transportationMode,
+                     n1));
+
+    toRemove.push_back(id);
+  }
+
+  for (const auto& id : toRemove)
+    nodeRegistry.erase(id);
+}
+
+nodePtr Map::findNearestNode(const Degrees latitude,
+                             const Degrees longitude) {
+  return this->tree.findNearestNode(latitude, longitude);
 }

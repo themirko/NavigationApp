@@ -13,7 +13,6 @@ class Map {
     std::unordered_map<std::string, nodePtr> nodeRegistry;
     KDTree tree;
 
-    int nodeCount = 0;
 
     TransportationMode toTransportationMode(
       const std::string& transportationMode) const;
@@ -41,12 +40,13 @@ class Map {
       const nodePtr& destinationPoint,
        const std::vector<pathData>& traversalData);
 
-    std::vector<nodePtr> DijkstraShortestPath(
-      const nodePtr& startingPoint,
-      const nodePtr& destinationPoint,
-      const TransportationMode transportationMode);
+
+
+    void simplifyGraph();
 
 public:
+    int nodeCount = 0;
+
     Map() = default;
     ~Map() = default;
 
@@ -62,6 +62,12 @@ public:
     void printKDTree() const;
     void printNumOfNodes() const;
     void printNumOfEdges() const;
+    nodePtr findNearestNode(const Degrees latitude,
+                            const Degrees longitude);
 
     std::unordered_map<std::string, nodePtr> getNodeRegistry() const;
+    std::vector<nodePtr> DijkstraShortestPath(
+        const nodePtr& startingPoint,
+        const nodePtr& destinationPoint,
+        const TransportationMode transportationMode);
 };

@@ -28,17 +28,24 @@ int main() {
     };
 
     std::vector<double> pathLengths;
-    std::vector<double> times;
+    std::vector<double> kdTimes;
+    std::vector<double> dijTimes;
 
     for (const auto& [endLat, endLon] : destinations) {
-        auto start = high_resolution_clock::now();
+        auto kdStart = high_resolution_clock::now();
+        nodePtr startNode = map.findNearestNode(startLat, startLon);
+        nodePtr destNode  = map.findNearestNode(endLat, endLon);
+        auto kdStop = high_resolution_clock::now();
+        double kdDuration =
+          duration_cast<microseconds>(kdStop - kdStart).count();
 
-        std::vector<nodePtr> path = map.findShortestPathToDestination(
-            startLat, startLon, endLat, endLon, "Walking"
-        );
-
-        auto stop = high_resolution_clock::now();
-        auto duration = duration_cast<milliseconds>(stop - start).count();
+        auto dijStart = high_resolution_clock::now();
+        std::vector<nodePtr> path =
+          map.DijkstraShortestPath(startNode, destNode,
+                                   TransportationMode::WALKING);
+        auto dijStop = high_resolution_clock::now();
+        double dijDuration =
+          duration_cast<milliseconds>(dijStop - dijStart).count();
 
         if (path.size() <= 1) {
             std::cout << "No path found for destination: "
@@ -47,25 +54,42 @@ int main() {
         }
 
         double totalDistance = 0.0;
-        for (size_t i = 1; i < path.size(); ++i) {
+        for (size_t i = 1; i < path.size(); ++i)
             totalDistance += GeoUtils::HaversineDistance(path[i - 1], path[i]);
-        }
 
-        std::cout << "Destination: " << endLat << ", " << endLon
+        std::cout << std::fixed << std::setprecision(3)
+                  << "Destination: " << endLat << ", " << endLon
                   << " | Path length: " << totalDistance << " km"
-                  << " | Time: " << duration << " ms" << std::endl;
+                  << " | KD time: " << kdDuration << " μs"
+                  << " | Dijkstra time: " << dijDuration << " ms"
+                  << std::endl;
+
 
         pathLengths.push_back(totalDistance);
-        times.push_back(duration);
+        kdTimes.push_back(kdDuration);
+        dijTimes.push_back(dijDuration);
     }
+
+    map.printNumOfNodes();
+    map.printNumOfEdges();
 
 
     plt::figure_size(800, 600);
-    plt::scatter(pathLengths, times, 80.0);
+
+    plt::figure();
+    plt::scatter(pathLengths, kdTimes, 80.0);
     plt::xlabel("Path length (km)");
-    plt::ylabel("Execution time (ms)");
+    plt::ylabel("KD-Tree time (μs)");
+    plt::title("Nearest-node (KD-Tree) execution time");
+    plt::grid(true);
+
+    plt::figure();
+    plt::scatter(pathLengths, dijTimes, 80.0);
+    plt::xlabel("Path length (km)");
+    plt::ylabel("Dijkstra time (ms)");
     plt::title("Dijkstra execution time vs. path length");
     plt::grid(true);
+
     plt::show();
 
     return 0;
