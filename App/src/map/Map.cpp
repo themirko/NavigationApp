@@ -32,7 +32,7 @@ TransportationMode Map::toTransportationMode(
 }
 
 void Map::loadNodesFromFile() {
-  std::ifstream file("../../Parser/OSM/NodesRS.txt");
+  std::ifstream file("../../Parser/OSM/NodesB.txt");
 
   if (!file) {
     std::cerr << "File does not exist! (loadNodesFromFile)" << std::endl;
@@ -125,7 +125,7 @@ void Map::buildKDTreeFromRegistry() {
 void Map::loadMap() {
   this->loadNodesFromFile();
 
-  std::ifstream file("../../Parser/OSM/WaysRS.txt");
+  std::ifstream file("../../Parser/OSM/WaysB.txt");
   if (!file) {
     std::cerr << "File does not exist! (loadMap)" << std::endl;
     return;
@@ -316,6 +316,16 @@ void Map::simplifyGraph() {
 
     Kilometers dist = e1.getDistance() + e2.getDistance();
 
+    n1->edges.erase(
+      std::remove_if(n1->edges.begin(), n1->edges.end(),
+                     [&](const Edge& e) { return e.getNeighborNode() == node; }),
+      n1->edges.end());
+
+    n2->edges.erase(
+      std::remove_if(n2->edges.begin(), n2->edges.end(),
+                     [&](const Edge& e) { return e.getNeighborNode() == node; }),
+      n2->edges.end());
+
     n1->addEdge(Edge(e1.streetName,
                      e1.streetId,
                      dist,
@@ -332,7 +342,18 @@ void Map::simplifyGraph() {
 
   for (const auto& id : toRemove)
     nodeRegistry.erase(id);
+
+  for (auto& [id, node] : nodeRegistry) {
+    node->edges.erase(
+      std::remove_if(node->edges.begin(), node->edges.end(),
+                     [&](const Edge& e) {
+                       auto n = e.getNeighborNode();
+                       return !n || !nodeRegistry.contains(n->getId());
+                     }),
+      node->edges.end());
+  }
 }
+
 
 nodePtr Map::findNearestNode(const Degrees latitude,
                              const Degrees longitude) {

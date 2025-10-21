@@ -6,10 +6,10 @@
 
 class Edge {
 public:
-    const std::string streetName;
-    const std::string streetId;
+    std::string streetName;
+    std::string streetId;
 
-    const Kilometers distance = 0;
+    Kilometers distance = 0;
 
     TransportationMode transportationMode;
     nodePtr nodeNeighbor;
@@ -23,6 +23,10 @@ public:
 
     ~Edge() = default;
 
+    Edge(const Edge& other) = delete;
+    Edge(Edge&& other) noexcept = default;
+
+    Edge& operator=(Edge&& other) noexcept = default;
     Edge& operator=(const Edge& other) = delete;
 
     nodePtr getNeighborNode() const;
